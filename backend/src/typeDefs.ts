@@ -11,11 +11,19 @@ export const typeDefs = /* GraphQL */ `
   }
 
   type Query {
+    me: User!
     health: String!
+    categories: [Category!]!
   }
 
   type Mutation {
     register(name: String!, email: String!, password: String!): AuthPayload!
     login(email: String!, password: String!): AuthPayload!
+    createCategory(name: String!): Category!
+  }
+
+  type Category {
+    id: ID!
+    name: String!
   }
 `;
