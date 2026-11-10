@@ -19,6 +19,12 @@ export const resolvers = {
             }),
     },
 
+    Transaction: {
+        date: (t: { date: Date }) => t.date.toISOString(),
+        category: (t: { categoryId: string | null }) =>
+            t.categoryId ? prisma.category.findUnique({ where: { id: t.categoryId } }) : null,
+    },
+
     Mutation: {
         register: async (
             _: unknown,
@@ -72,6 +78,32 @@ export const resolvers = {
 
             await prisma.category.delete({ where: { id: args.id } });
             return true;
+        },
+
+        createTransaction: async (
+            _: unknown,
+            { input }: { input: { description: string; amount: number; type: string; date?: string; categoryId?: string } },
+            ctx: Context
+        ) => {
+            const userId = requireAuth(ctx);
+
+            if (input.categoryId) {
+                const category = await prisma.category.findFirst({
+                    where: { id: input.categoryId, userId },
+                });
+                if (!category) throw new GraphQLError("Categoria não encontrada");
+            }
+
+            return prisma.transaction.create({
+                data: {
+                    description: input.description,
+                    amount: input.amount,
+                    type: input.type,
+                    date: input.date ? new Date(input.date) : undefined,
+                    categoryId: input.categoryId,
+                    userId,
+                },
+            });
         },
     },
 };
