@@ -45,5 +45,22 @@ export const resolvers = {
             prisma.category.create({
                 data: { name: args.name, userId: requireAuth(ctx) },
             }),
+
+        updateCategory: async (
+            _: unknown,
+            args: { id: string; name: string },
+            ctx: Context
+        ) => {
+            const userId = requireAuth(ctx);
+            const category = await prisma.category.findFirst({
+                where: { id: args.id, userId },
+            });
+            if (!category) throw new GraphQLError("Categoria não encontrada");
+
+            return prisma.category.update({
+                where: { id: args.id },
+                data: { name: args.name },
+            });
+        },
     },
 };
