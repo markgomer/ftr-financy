@@ -21,6 +21,7 @@ export const typeDefs = /* GraphQL */ `
     login(email: String!, password: String!): AuthPayload!
     createCategory(name: String!): Category!
     updateCategory(id: ID!, name: String!): Category!
+    deleteCategory(id: ID!): Boolean!
   }
 
   type Category {
