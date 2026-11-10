@@ -3,6 +3,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "@apollo/client/react";
+import { LOGIN } from "../graphql/auth";
+import { useAuth } from "../lib/auth";
 import { Eye, EyeOff, Lock, Mail, UserPlus } from "lucide-react";
 import { AuthLayout } from "../components/AuthLayout";
 import { Input } from "../components/Input";
@@ -24,8 +27,20 @@ export default function Login() {
         handleSubmit,
         formState: { errors },
     } = useForm<FormData>({ resolver: zodResolver(schema) });
+    const { signIn } = useAuth();
+    const [login, { loading }] = useMutation<{ login: { token: string } }>(LOGIN);
+    const [serverError, setServerError] = useState("");
 
-    const onSubmit = (data: FormData) => console.log(data);
+    const onSubmit = async (data: FormData) => {
+        setServerError("");
+        try {
+            const { data: res } = await login({ variables: data });
+            signIn(res!.login.token);
+        } catch (e) {
+            setServerError(e instanceof Error ? e.message : "Erro ao entrar");
+        }
+    };
+
 
     return (
         <AuthLayout title="Fazer login" subtitle="Entre na sua conta para continuar">
@@ -64,7 +79,8 @@ export default function Login() {
                     </div>
                 </div>
 
-                <Button type="submit">Entrar</Button>
+                {serverError && <p className="text-center text-sm text-danger">{serverError}</p>}
+                <Button type="submit" disabled={loading}>Entrar</Button>
 
                 <div className="flex items-center gap-3 text-sm text-gray-500">
                     <span className="h-px flex-1 bg-gray-200" />
