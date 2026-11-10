@@ -17,6 +17,11 @@ export const resolvers = {
                 where: { userId: requireAuth(ctx) },
                 orderBy: { createdAt: "desc" },
             }),
+        transactions: (_: unknown, __: unknown, ctx: Context) =>
+            prisma.transaction.findMany({
+                where: { userId: requireAuth(ctx) },
+                orderBy: { date: "desc" },
+            }),
     },
 
     Transaction: {

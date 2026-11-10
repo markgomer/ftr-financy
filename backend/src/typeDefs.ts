@@ -14,6 +14,7 @@ type Query {
     me: User!
     health: String!
     categories: [Category!]!
+    transactions: [Transaction!]!
 }
 
 type Mutation {
