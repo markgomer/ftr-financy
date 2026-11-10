@@ -20,6 +20,7 @@ export const typeDefs = /* GraphQL */ `
     register(name: String!, email: String!, password: String!): AuthPayload!
     login(email: String!, password: String!): AuthPayload!
     createCategory(name: String!): Category!
+    updateCategory(id: ID!, name: String!): Category!
   }
 
   type Category {
