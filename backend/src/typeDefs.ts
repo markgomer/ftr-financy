@@ -24,6 +24,7 @@ type Mutation {
     updateCategory(id: ID!, name: String!): Category!
     deleteCategory(id: ID!): Boolean!
     createTransaction(input: CreateTransactionInput!): Transaction!
+    updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
 }
 
 type Category {
@@ -49,6 +50,14 @@ input CreateTransactionInput {
     description: String!
     amount: Float!
     type: TransactionType!
+    date: String
+    categoryId: ID
+}
+
+input UpdateTransactionInput {
+    description: String
+    amount: Float
+    type: TransactionType
     date: String
     categoryId: ID
 }

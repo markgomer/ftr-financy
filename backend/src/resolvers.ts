@@ -110,5 +110,46 @@ export const resolvers = {
                 },
             });
         },
+
+        updateTransaction: async (
+            _: unknown,
+            args: {
+                id: string;
+                input: {
+                    description?: string;
+                    amount?: number;
+                    type?: string;
+                    date?: string;
+                    categoryId?: string;
+                };
+            },
+            ctx: Context
+        ) => {
+            const userId = requireAuth(ctx);
+            const { input } = args;
+
+            const transaction = await prisma.transaction.findFirst({
+                where: { id: args.id, userId },
+            });
+            if (!transaction) throw new GraphQLError("Transação não encontrada");
+
+            if (input.categoryId) {
+                const category = await prisma.category.findFirst({
+                    where: { id: input.categoryId, userId },
+                });
+                if (!category) throw new GraphQLError("Categoria não encontrada");
+            }
+
+            return prisma.transaction.update({
+                where: { id: args.id },
+                data: {
+                    description: input.description ?? undefined,
+                    amount: input.amount ?? undefined,
+                    type: input.type ?? undefined,
+                    date: input.date ? new Date(input.date) : undefined,
+                    categoryId: input.categoryId ?? undefined,
+                },
+            });
+        },
     },
 };
