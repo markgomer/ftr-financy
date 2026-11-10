@@ -25,6 +25,7 @@ type Mutation {
     deleteCategory(id: ID!): Boolean!
     createTransaction(input: CreateTransactionInput!): Transaction!
     updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
+    deleteTransaction(id: ID!): Boolean!
 }
 
 type Category {

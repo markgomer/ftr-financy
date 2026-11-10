@@ -151,5 +151,16 @@ export const resolvers = {
                 },
             });
         },
+
+        deleteTransaction: async (_: unknown, args: { id: string }, ctx: Context) => {
+            const userId = requireAuth(ctx);
+            const transaction = await prisma.transaction.findFirst({
+                where: { id: args.id, userId },
+            });
+            if (!transaction) throw new GraphQLError("Transação não encontrada");
+
+            await prisma.transaction.delete({ where: { id: args.id } });
+            return true;
+        },
     },
 };
