@@ -62,5 +62,16 @@ export const resolvers = {
                 data: { name: args.name },
             });
         },
+
+        deleteCategory: async (_: unknown, args: { id: string }, ctx: Context) => {
+            const userId = requireAuth(ctx);
+            const category = await prisma.category.findFirst({
+                where: { id: args.id, userId },
+            });
+            if (!category) throw new GraphQLError("Categoria não encontrada");
+
+            await prisma.category.delete({ where: { id: args.id } });
+            return true;
+        },
     },
 };
