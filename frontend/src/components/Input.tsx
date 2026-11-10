@@ -9,7 +9,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 };
 
 export const Input = forwardRef<HTMLInputElement, Props>(function Input(
-    { label, icon, helper, error, className = "", id, ...props },
+    { label, icon, suffix, helper, error, className = "", id, ...props },
     ref
 ) {
     const inputId = id ?? props.name;
@@ -39,6 +39,7 @@ export const Input = forwardRef<HTMLInputElement, Props>(function Input(
                     className="w-full bg-transparent text-base text-gray-800 outline-none placeholder:text-gray-400 disabled:cursor-not-allowed"
                     {...props}
                 />
+                {suffix}
             </div>
 
             {(error || helper) && (
