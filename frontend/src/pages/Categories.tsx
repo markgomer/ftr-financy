@@ -1,6 +1,6 @@
-import { useQuery } from "@apollo/client/react";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { ArrowUpDown, Plus, SquarePen, Tag as TagIcon, Trash } from "lucide-react";
-import { CATEGORIES, type Category } from "../graphql/categories";
+import { CATEGORIES, DELETE_CATEGORY, type Category } from "../graphql/categories";
 import { TRANSACTIONS, type Transaction } from "../graphql/transactions";
 import { Button } from "../components/Button";
 import { IconButton } from "../components/IconButton";
@@ -15,6 +15,9 @@ const itemsLabel = (n: number) => `${n} ${n === 1 ? "item" : "itens"}`;
 export default function Categories() {
     const [modalOpen, setModalOpen] = useState(false);
     const [editing, setEditing] = useState<Category | null>(null);
+    const [deleteCategory] = useMutation(DELETE_CATEGORY, {
+        refetchQueries: [CATEGORIES, TRANSACTIONS],
+    });
     const { data: catData } = useQuery<{ categories: Category[] }>(CATEGORIES);
     const { data: txData } = useQuery<{ transactions: Transaction[] }>(TRANSACTIONS);
 
@@ -75,7 +78,11 @@ export default function Categories() {
                         <div className="flex items-start justify-between">
                             <CategoryIcon icon={c.icon} color={c.color} />
                             <div className="flex gap-2">
-                                <IconButton variant="danger" icon={<Trash size={16} />} />
+                                <IconButton
+                                    variant="danger"
+                                    icon={<Trash size={16} />}
+                                    onClick={() => deleteCategory({ variables: { id: c.id } })}
+                                />
                                 <IconButton icon={<SquarePen size={16} />} onClick={() => setEditing(c)} />
                             </div>
                         </div>
