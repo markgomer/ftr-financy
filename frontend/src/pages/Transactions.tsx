@@ -7,10 +7,13 @@ import { Tag, type TagColor } from "../components/Tag";
 import { CategoryIcon } from "../components/CategoryIcon";
 import { TransactionType } from "../components/TransactionType";
 import { formatCurrency, formatDate } from "../lib/format";
+import { useState } from "react";
+import { TransactionModal } from "../components/TransactionModal";
 
 const th = "px-3 py-5 text-xs font-medium tracking-wider text-gray-500 uppercase";
 
 export default function Transactions() {
+    const [modalOpen, setModalOpen] = useState(false);
     const { data } = useQuery<{ transactions: Transaction[] }>(TRANSACTIONS);
     const transactions = data?.transactions ?? [];
 
@@ -21,7 +24,7 @@ export default function Transactions() {
                     <h1 className="text-2xl font-bold text-gray-800">Transações</h1>
                     <p className="text-gray-600">Gerencie todas as suas transações financeiras</p>
                 </div>
-                <Button size="sm" icon={<Plus size={16} />}>
+                <Button size="sm" icon={<Plus size={16} />} onClick={() => setModalOpen(true)}>
                     Nova transação
                 </Button>
             </header>
@@ -86,6 +89,7 @@ export default function Transactions() {
                     </tbody>
                 </table>
             </section>
+            {modalOpen && <TransactionModal onClose={() => setModalOpen(false)} />}
         </div>
     );
 }

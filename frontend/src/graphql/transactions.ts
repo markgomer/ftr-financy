@@ -18,3 +18,12 @@ export const TRANSACTIONS = gql`
     }
   }
 `;
+
+export const CREATE_TRANSACTION = gql`
+  mutation CreateTransaction($input: CreateTransactionInput!) {
+    createTransaction(input: $input) {
+      id description amount type date
+      category { id name description icon color }
+    }
+  }
+`;
