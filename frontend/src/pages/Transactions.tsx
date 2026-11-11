@@ -1,6 +1,6 @@
-import { useQuery } from "@apollo/client/react";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { Plus, SquarePen, Trash } from "lucide-react";
-import { TRANSACTIONS, type Transaction } from "../graphql/transactions";
+import { DELETE_TRANSACTION, TRANSACTIONS, type Transaction } from "../graphql/transactions";
 import { Button } from "../components/Button";
 import { IconButton } from "../components/IconButton";
 import { Tag, type TagColor } from "../components/Tag";
@@ -15,6 +15,9 @@ const th = "px-3 py-5 text-xs font-medium tracking-wider text-gray-500 uppercase
 export default function Transactions() {
     const [modalOpen, setModalOpen] = useState(false);
     const [editing, setEditing] = useState<Transaction | null>(null);
+    const [deleteTransaction] = useMutation(DELETE_TRANSACTION, {
+        refetchQueries: [TRANSACTIONS],
+    });
     const { data } = useQuery<{ transactions: Transaction[] }>(TRANSACTIONS);
     const transactions = data?.transactions ?? [];
 
@@ -74,7 +77,11 @@ export default function Transactions() {
                                 </td>
                                 <td className="px-6">
                                     <div className="flex justify-center gap-2">
-                                        <IconButton variant="danger" icon={<Trash size={16} />} />
+                                        <IconButton
+                                            variant="danger"
+                                            icon={<Trash size={16} />}
+                                            onClick={() => deleteTransaction({ variables: { id: t.id } })}
+                                        />
                                         <IconButton icon={<SquarePen size={16} />} onClick={() => setEditing(t)} />
                                     </div>
                                 </td>
