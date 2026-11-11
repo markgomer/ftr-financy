@@ -23,6 +23,9 @@ model User {
 model Category {
   id           String        @id @default(uuid())
   name         String
+  description  String?
+  icon         String        @default("tag")
+  color        String        @default("blue")
   userId       String
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
