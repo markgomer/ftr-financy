@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import { AppLayout } from "./components/AppLayout";
 import { useAuth } from "./lib/auth";
 import Categories from "./pages/Categories";
+import Transactions from "./pages/Transactions";
 
 export default function App() {
     const { isAuthenticated } = useAuth();
@@ -12,11 +13,14 @@ export default function App() {
     return (
         <Routes>
             <Route path="/signup" element={<Signup />} />
+
             <Route path="/" element={isAuthenticated ? <AppLayout /> : <Login />}>
-                <Route element={<AppLayout />}>
-                    <Route path="/categories" element={<Categories />} />
-                </Route>
                 <Route index element={<Dashboard />} />
+            </Route>
+
+            <Route element={<AppLayout />}>
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/transactions" element={<Transactions />} />
             </Route>
         </Routes>
     );
