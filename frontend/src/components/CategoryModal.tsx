@@ -6,7 +6,12 @@ import { useMutation } from "@apollo/client/react";
 import { Modal } from "./Modal";
 import { Input } from "./Input";
 import { Button } from "./Button";
-import { CATEGORIES, CREATE_CATEGORY } from "../graphql/categories";
+import {
+    CATEGORIES,
+    CREATE_CATEGORY,
+    UPDATE_CATEGORY,
+    type Category,
+} from "../graphql/categories";
 import {
     CATEGORY_COLORS,
     CATEGORY_ICONS,
@@ -22,32 +27,53 @@ type FormData = z.infer<typeof schema>;
 
 const PICKER_ICONS = Object.entries(CATEGORY_ICONS).filter(([k]) => k !== "tag");
 
-export function CategoryModal({ onClose }: { onClose: () => void }) {
-    const [icon, setIcon] = useState("briefcase-business");
-    const [color, setColor] = useState<string>("green");
+type Props = { onClose: () => void; category?: Category };
+
+export function CategoryModal({ onClose, category }: Props) {
+    const [icon, setIcon] = useState(category?.icon ?? "briefcase-business");
+    const [color, setColor] = useState<string>(category?.color ?? "green");
     const [serverError, setServerError] = useState("");
 
-    const [createCategory, { loading }] = useMutation(CREATE_CATEGORY, {
+    const [createCategory, { loading: creating }] = useMutation(CREATE_CATEGORY, {
         refetchQueries: [CATEGORIES],
     });
+    const [updateCategory, { loading: updating }] = useMutation(UPDATE_CATEGORY);
 
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<FormData>({ resolver: zodResolver(schema) });
+    } = useForm<FormData>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            name: category?.name ?? "",
+            description: category?.description ?? "",
+        },
+    });
 
     const onSubmit = async (data: FormData) => {
         setServerError("");
         try {
-            await createCategory({
-                variables: {
-                    name: data.name,
-                    description: data.description || undefined,
-                    icon,
-                    color,
-                },
-            });
+            if (category) {
+                await updateCategory({
+                    variables: {
+                        id: category.id,
+                        name: data.name,
+                        description: data.description || null,
+                        icon,
+                        color,
+                    },
+                });
+            } else {
+                await createCategory({
+                    variables: {
+                        name: data.name,
+                        description: data.description || undefined,
+                        icon,
+                        color,
+                    },
+                });
+            }
             onClose();
         } catch (e) {
             setServerError(e instanceof Error ? e.message : "Erro ao salvar");
@@ -57,7 +83,7 @@ export function CategoryModal({ onClose }: { onClose: () => void }) {
     return (
         <Modal
             onClose={onClose}
-            title="Nova categoria"
+            title={category ? "Editar categoria" : "Nova categoria"}
             description="Organize suas transações com categorias"
         >
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
@@ -116,7 +142,7 @@ export function CategoryModal({ onClose }: { onClose: () => void }) {
 
                 {serverError && <p className="text-center text-sm text-danger">{serverError}</p>}
 
-                <Button type="submit" disabled={loading}>
+                <Button type="submit" disabled={creating || updating}>
                     Salvar
                 </Button>
             </form>
