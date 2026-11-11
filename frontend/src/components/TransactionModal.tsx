@@ -9,7 +9,12 @@ import { Input } from "./Input";
 import { Select } from "./Select";
 import { Button } from "./Button";
 import { CATEGORIES, type Category } from "../graphql/categories";
-import { CREATE_TRANSACTION, TRANSACTIONS } from "../graphql/transactions";
+import {
+    CREATE_TRANSACTION,
+    TRANSACTIONS,
+    UPDATE_TRANSACTION,
+    type Transaction,
+} from "../graphql/transactions";
 
 const schema = z.object({
     description: z.string().min(1, "Informe a descrição"),
@@ -21,36 +26,52 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-export function TransactionModal({ onClose }: { onClose: () => void }) {
-    const [type, setType] = useState<"EXPENSE" | "INCOME">("EXPENSE");
-    const [categoryId, setCategoryId] = useState("");
+type Props = { onClose: () => void; transaction?: Transaction };
+
+export function TransactionModal({ onClose, transaction }: Props) {
+    const [type, setType] = useState<"EXPENSE" | "INCOME">(
+        transaction?.type ?? "EXPENSE"
+    );
+    const [categoryId, setCategoryId] = useState(transaction?.category?.id ?? "");
     const [serverError, setServerError] = useState("");
 
     const { data } = useQuery<{ categories: Category[] }>(CATEGORIES);
-    const [createTransaction, { loading }] = useMutation(CREATE_TRANSACTION, {
-        refetchQueries: [TRANSACTIONS],
-    });
+    const [createTransaction, { loading: creating }] = useMutation(
+        CREATE_TRANSACTION,
+        { refetchQueries: [TRANSACTIONS] }
+    );
+    const [updateTransaction, { loading: updating }] =
+        useMutation(UPDATE_TRANSACTION);
 
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<FormData>({ resolver: zodResolver(schema) });
+    } = useForm<FormData>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            description: transaction?.description ?? "",
+            date: transaction?.date.slice(0, 10) ?? "",
+            amount: transaction?.amount,
+        },
+    });
 
     const onSubmit = async (form: FormData) => {
         setServerError("");
+        const input = {
+            description: form.description,
+            amount: form.amount,
+            date: form.date,
+            type,
+            categoryId: categoryId || undefined,
+        };
+
         try {
-            await createTransaction({
-                variables: {
-                    input: {
-                        description: form.description,
-                        amount: form.amount,
-                        date: form.date,
-                        type,
-                        categoryId: categoryId || undefined,
-                    },
-                },
-            });
+            if (transaction) {
+                await updateTransaction({ variables: { id: transaction.id, input } });
+            } else {
+                await createTransaction({ variables: { input } });
+            }
             onClose();
         } catch (e) {
             setServerError(e instanceof Error ? e.message : "Erro ao salvar");
@@ -85,7 +106,7 @@ export function TransactionModal({ onClose }: { onClose: () => void }) {
     return (
         <Modal
             onClose={onClose}
-            title="Nova transação"
+            title={transaction ? "Editar transação" : "Nova transação"}
             description="Registre sua despesa ou receita"
         >
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
@@ -134,7 +155,7 @@ export function TransactionModal({ onClose }: { onClose: () => void }) {
 
                 {serverError && <p className="text-center text-sm text-danger">{serverError}</p>}
 
-                <Button type="submit" disabled={loading}>
+                <Button type="submit" disabled={creating || updating}>
                     Salvar
                 </Button>
             </form>

@@ -14,6 +14,7 @@ const th = "px-3 py-5 text-xs font-medium tracking-wider text-gray-500 uppercase
 
 export default function Transactions() {
     const [modalOpen, setModalOpen] = useState(false);
+    const [editing, setEditing] = useState<Transaction | null>(null);
     const { data } = useQuery<{ transactions: Transaction[] }>(TRANSACTIONS);
     const transactions = data?.transactions ?? [];
 
@@ -74,7 +75,7 @@ export default function Transactions() {
                                 <td className="px-6">
                                     <div className="flex justify-center gap-2">
                                         <IconButton variant="danger" icon={<Trash size={16} />} />
-                                        <IconButton icon={<SquarePen size={16} />} />
+                                        <IconButton icon={<SquarePen size={16} />} onClick={() => setEditing(t)} />
                                     </div>
                                 </td>
                             </tr>
@@ -90,6 +91,9 @@ export default function Transactions() {
                 </table>
             </section>
             {modalOpen && <TransactionModal onClose={() => setModalOpen(false)} />}
+            {editing && (
+                <TransactionModal transaction={editing} onClose={() => setEditing(null)} />
+            )}
         </div>
     );
 }
