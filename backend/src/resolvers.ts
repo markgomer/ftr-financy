@@ -52,14 +52,30 @@ export const resolvers = {
             return { token: signToken(user.id), user };
         },
 
-        createCategory: (_: unknown, args: { name: string }, ctx: Context) =>
+        createCategory: (
+            _: unknown,
+            args: { name: string; description?: string; icon?: string; color?: string },
+            ctx: Context
+        ) =>
             prisma.category.create({
-                data: { name: args.name, userId: requireAuth(ctx) },
+                data: {
+                    name: args.name,
+                    description: args.description,
+                    icon: args.icon ?? undefined,
+                    color: args.color ?? undefined,
+                    userId: requireAuth(ctx),
+                },
             }),
 
         updateCategory: async (
             _: unknown,
-            args: { id: string; name: string },
+            args: {
+                id: string;
+                name?: string;
+                description?: string | null;
+                icon?: string;
+                color?: string;
+            },
             ctx: Context
         ) => {
             const userId = requireAuth(ctx);
@@ -70,7 +86,12 @@ export const resolvers = {
 
             return prisma.category.update({
                 where: { id: args.id },
-                data: { name: args.name },
+                data: {
+                    name: args.name ?? undefined,
+                    description: args.description,
+                    icon: args.icon ?? undefined,
+                    color: args.color ?? undefined,
+                },
             });
         },
 

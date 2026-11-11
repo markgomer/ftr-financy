@@ -20,8 +20,8 @@ type Query {
 type Mutation {
     register(name: String!, email: String!, password: String!): AuthPayload!
     login(email: String!, password: String!): AuthPayload!
-    createCategory(name: String!): Category!
-    updateCategory(id: ID!, name: String!): Category!
+    createCategory(name: String!, description: String, icon: String, color: String): Category!
+    updateCategory(id: ID!, name: String, description: String, icon: String, color: String): Category!
     deleteCategory(id: ID!): Boolean!
     createTransaction(input: CreateTransactionInput!): Transaction!
     updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
@@ -29,8 +29,11 @@ type Mutation {
 }
 
 type Category {
-    id: ID!
-    name: String!
+  id: ID!
+  name: String!
+  description: String
+  icon: String!
+  color: String!
 }
 
 enum TransactionType {
