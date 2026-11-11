@@ -14,6 +14,7 @@ const itemsLabel = (n: number) => `${n} ${n === 1 ? "item" : "itens"}`;
 
 export default function Categories() {
     const [modalOpen, setModalOpen] = useState(false);
+    const [editing, setEditing] = useState<Category | null>(null);
     const { data: catData } = useQuery<{ categories: Category[] }>(CATEGORIES);
     const { data: txData } = useQuery<{ transactions: Transaction[] }>(TRANSACTIONS);
 
@@ -75,7 +76,7 @@ export default function Categories() {
                             <CategoryIcon icon={c.icon} color={c.color} />
                             <div className="flex gap-2">
                                 <IconButton variant="danger" icon={<Trash size={16} />} />
-                                <IconButton icon={<SquarePen size={16} />} />
+                                <IconButton icon={<SquarePen size={16} />} onClick={() => setEditing(c)} />
                             </div>
                         </div>
 
@@ -94,6 +95,7 @@ export default function Categories() {
                 ))}
             </section>
             {modalOpen && <CategoryModal onClose={() => setModalOpen(false)} />}
+            {editing && <CategoryModal category={editing} onClose={() => setEditing(null)} />}
         </div>
     );
 }
