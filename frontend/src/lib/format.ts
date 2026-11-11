@@ -8,3 +8,5 @@ export const formatDate = (iso: string) =>
         year: "2-digit",
         timeZone: "UTC",
     });
+
+export const formatItems = (n: number) => `${n} ${n === 1 ? "item" : "itens"}`;
