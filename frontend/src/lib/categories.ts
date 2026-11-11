@@ -57,6 +57,7 @@ export const COLOR_STYLES: Record<string, { box: string; swatch: string }> = {
     orange: { box: "bg-orange-light text-orange-dark", swatch: "bg-orange-base" },
     yellow: { box: "bg-yellow-light text-yellow-dark", swatch: "bg-yellow-base" },
     green: { box: "bg-green-light text-green-dark", swatch: "bg-green-base" },
+    gray: { box: "bg-gray-200 text-gray-600", swatch: "bg-gray-400" },
 };
 
 export const getCategoryIcon = (name: string) => CATEGORY_ICONS[name] ?? Tag;

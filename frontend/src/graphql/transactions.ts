@@ -18,3 +18,27 @@ export const TRANSACTIONS = gql`
     }
   }
 `;
+
+export const CREATE_TRANSACTION = gql`
+  mutation CreateTransaction($input: CreateTransactionInput!) {
+    createTransaction(input: $input) {
+      id description amount type date
+      category { id name description icon color }
+    }
+  }
+`;
+
+export const UPDATE_TRANSACTION = gql`
+  mutation UpdateTransaction($id: ID!, $input: UpdateTransactionInput!) {
+    updateTransaction(id: $id, input: $input) {
+      id description amount type date
+      category { id name description icon color }
+    }
+  }
+`;
+
+export const DELETE_TRANSACTION = gql`
+  mutation DeleteTransaction($id: ID!) {
+    deleteTransaction(id: $id)
+  }
+`;
