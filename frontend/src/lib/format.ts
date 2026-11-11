@@ -10,3 +10,10 @@ export const formatDate = (iso: string) =>
     });
 
 export const formatItems = (n: number) => `${n} ${n === 1 ? "item" : "itens"}`;
+
+export function getInitials(name = "") {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return "";
+    const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+    return (parts[0][0] + last).toUpperCase();
+}

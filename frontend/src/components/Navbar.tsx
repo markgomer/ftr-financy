@@ -2,19 +2,13 @@ import { Link, NavLink } from "react-router-dom";
 import { useQuery } from "@apollo/client/react";
 import logo from "../assets/logo.svg";
 import { ME } from "../graphql/user";
+import { getInitials } from "../lib/format";
 
 const links = [
     { to: "/", label: "Dashboard", end: true },
     { to: "/transactions", label: "Transações" },
     { to: "/categories", label: "Categorias" },
 ];
-
-function initials(name = "") {
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    if (!parts.length) return "";
-    const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
-    return (parts[0][0] + last).toUpperCase();
-}
 
 export function Navbar() {
     const { data } = useQuery<{ me: { name: string } }>(ME);
@@ -48,7 +42,7 @@ export function Navbar() {
                     to="/profile"
                     className="flex size-9 items-center justify-center rounded-full bg-gray-300 text-sm font-medium text-gray-800"
                 >
-                    {initials(data?.me.name)}
+                    {getInitials(data?.me.name)}
                 </Link>
             </div>
         </header>

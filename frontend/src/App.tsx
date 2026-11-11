@@ -6,6 +6,7 @@ import { AppLayout } from "./components/AppLayout";
 import { useAuth } from "./lib/auth";
 import Categories from "./pages/Categories";
 import Transactions from "./pages/Transactions";
+import Profile from "./pages/Profile";
 
 export default function App() {
     const { isAuthenticated } = useAuth();
@@ -21,6 +22,7 @@ export default function App() {
             <Route element={<AppLayout />}>
                 <Route path="/categories" element={<Categories />} />
                 <Route path="/transactions" element={<Transactions />} />
+                <Route path="/profile" element={<Profile />} />
             </Route>
         </Routes>
     );
