@@ -26,6 +26,7 @@ type Mutation {
     createTransaction(input: CreateTransactionInput!): Transaction!
     updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
     deleteTransaction(id: ID!): Boolean!
+    updateProfile(name: String!): User!
 }
 
 type Category {

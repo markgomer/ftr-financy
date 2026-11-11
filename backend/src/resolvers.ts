@@ -183,5 +183,11 @@ export const resolvers = {
             await prisma.transaction.delete({ where: { id: args.id } });
             return true;
         },
+
+        updateProfile: (_: unknown, args: { name: string }, ctx: Context) =>
+            prisma.user.update({
+                where: { id: requireAuth(ctx) },
+                data: { name: args.name },
+            }),
     },
 };
