@@ -7,10 +7,13 @@ import { IconButton } from "../components/IconButton";
 import { Tag, type TagColor } from "../components/Tag";
 import { CategoryIcon } from "../components/CategoryIcon";
 import { COLOR_STYLES, getCategoryIcon } from "../lib/categories";
+import { useState } from "react";
+import { CategoryModal } from "../components/CategoryModal";
 
 const itemsLabel = (n: number) => `${n} ${n === 1 ? "item" : "itens"}`;
 
 export default function Categories() {
+    const [modalOpen, setModalOpen] = useState(false);
     const { data: catData } = useQuery<{ categories: Category[] }>(CATEGORIES);
     const { data: txData } = useQuery<{ transactions: Transaction[] }>(TRANSACTIONS);
 
@@ -35,8 +38,7 @@ export default function Categories() {
                     <h1 className="text-2xl font-bold text-gray-800">Categorias</h1>
                     <p className="text-gray-600">Organize suas transações por categorias</p>
                 </div>
-                <Button size="sm" icon={<Plus size={16} />}>
-                    Nova categoria
+                <Button size="sm" icon={<Plus size={16} />} onClick={() => setModalOpen(true)}>
                 </Button>
             </header>
 
@@ -91,6 +93,7 @@ export default function Categories() {
                     </article>
                 ))}
             </section>
+            {modalOpen && <CategoryModal onClose={() => setModalOpen(false)} />}
         </div>
     );
 }

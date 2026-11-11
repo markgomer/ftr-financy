@@ -13,3 +13,16 @@ export const CATEGORIES = gql`
     categories { id name description icon color }
   }
 `;
+
+export const CREATE_CATEGORY = gql`
+  mutation CreateCategory(
+    $name: String!
+    $description: String
+    $icon: String
+    $color: String
+  ) {
+    createCategory(name: $name, description: $description, icon: $icon, color: $color) {
+      id name description icon color
+    }
+  }
+`;
