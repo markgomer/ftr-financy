@@ -9,8 +9,22 @@ import { TransactionType } from "../components/TransactionType";
 import { formatCurrency, formatDate } from "../lib/format";
 import { useState } from "react";
 import { TransactionModal } from "../components/TransactionModal";
+import { Search } from "lucide-react";
+import { Input } from "../components/Input";
+import { Select } from "../components/Select";
+import { CATEGORIES, type Category } from "../graphql/categories";
 
 const th = "px-3 py-5 text-xs font-medium tracking-wider text-gray-500 uppercase";
+
+const MONTHS = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+];
+
+const monthLabel = (m: string) => {
+    const [year, month] = m.split("-");
+    return `${MONTHS[Number(month) - 1]} / ${year}`;
+};
 
 export default function Transactions() {
     const [modalOpen, setModalOpen] = useState(false);
@@ -20,6 +34,23 @@ export default function Transactions() {
     });
     const { data } = useQuery<{ transactions: Transaction[] }>(TRANSACTIONS);
     const transactions = data?.transactions ?? [];
+
+    const { data: catData } = useQuery<{ categories: Category[] }>(CATEGORIES);
+
+    const [search, setSearch] = useState("");
+    const [typeFilter, setTypeFilter] = useState("ALL");
+    const [categoryFilter, setCategoryFilter] = useState("ALL");
+    const [period, setPeriod] = useState("ALL");
+
+    const months = [...new Set(transactions.map((t) => t.date.slice(0, 7)))].sort().reverse();
+
+    const filtered = transactions.filter(
+        (t) =>
+            t.description.toLowerCase().includes(search.trim().toLowerCase()) &&
+            (typeFilter === "ALL" || t.type === typeFilter) &&
+            (categoryFilter === "ALL" || t.category?.id === categoryFilter) &&
+            (period === "ALL" || t.date.slice(0, 7) === period)
+    );
 
     return (
         <div className="flex flex-col gap-8">
@@ -32,6 +63,44 @@ export default function Transactions() {
                     Nova transação
                 </Button>
             </header>
+
+            <section className="grid grid-cols-1 gap-4 rounded-xl border border-gray-200 bg-white p-6 sm:grid-cols-2 lg:grid-cols-4">
+                <Input
+                    label="Buscar"
+                    placeholder="Buscar por descrição"
+                    icon={<Search size={16} />}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+                <Select
+                    label="Tipo"
+                    value={typeFilter}
+                    onChange={setTypeFilter}
+                    options={[
+                        { value: "ALL", label: "Todos" },
+                        { value: "INCOME", label: "Entrada" },
+                        { value: "EXPENSE", label: "Saída" },
+                    ]}
+                />
+                <Select
+                    label="Categoria"
+                    value={categoryFilter}
+                    onChange={setCategoryFilter}
+                    options={[
+                        { value: "ALL", label: "Todas" },
+                        ...(catData?.categories ?? []).map((c) => ({ value: c.id, label: c.name })),
+                    ]}
+                />
+                <Select
+                    label="Período"
+                    value={period}
+                    onChange={setPeriod}
+                    options={[
+                        { value: "ALL", label: "Todos" },
+                        ...months.map((m) => ({ value: m, label: monthLabel(m) })),
+                    ]}
+                />
+            </section>
 
             <section className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
                 <table className="w-full min-w-[900px]">
@@ -46,7 +115,7 @@ export default function Transactions() {
                         </tr>
                     </thead>
                     <tbody>
-                        {transactions.map((t) => (
+                        {filtered.map((t) => (
                             <tr key={t.id} className="border-b border-gray-200 last:border-b-0">
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-4">
@@ -87,7 +156,7 @@ export default function Transactions() {
                                 </td>
                             </tr>
                         ))}
-                        {transactions.length === 0 && (
+                        {filtered.length === 0 && (
                             <tr>
                                 <td colSpan={6} className="px-6 py-10 text-center text-gray-500">
                                     Nenhuma transação encontrada
